@@ -52,7 +52,6 @@ class PyRanuni(object):
         self.logger = logger
 
     def ranuni(self):
-        foo = 1.0
         multiplier = 397204094L
         prime_modulus = 2147483647L
         return( float((multiplier*self._seed) % prime_modulus) / (prime_modulus-1) )
