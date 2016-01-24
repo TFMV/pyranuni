@@ -1,0 +1,76 @@
+#!/usr/bin/python
+'''
+Created on Jan 24, 2016
+     PyRanuni :
+     This class implements the Ranuni function often used in SAS
+     Function Name: PyRanuni
+     Function Purpose: compute a pseudo-random variable from a uniform distribution such that
+     The return value will match exactly to the return value obtained from
+     the SAS function "call ranuni(seed,ranuni)"
+ 
+     If seed is >0 then  0<ranunix<=1
+     If seed = 0   then  use to_char(current_date,'YYYYDDHH24MISS') as the seed
+     If seed <0    then  -1<=ranuni<0
+
+     1) returns a value in (0,1]:          ranuni (25938940)
+     2) return a value between (100,500]:  100+(500-100)*ranuni(25938940)
+
+     @author: Thomas McGeehan
+     Reference: Fishman, GS, and LR Moore (1982), "A Statistical Evaluation of Multiplicative
+                Congruential Random Number Generators With Modulus (2^^31)-1.
+                J. Amer. Stats. Assoc., 77(377), 129-136
+
+'''
+
+try:
+    import json
+except ImportError,e:
+    import simplejson as json
+except ImportError,e:
+    print e
+    exit()
+
+import sys
+import logging
+import argparse
+
+__author__ = "Thomas McGeehan"
+__version__ = "0.1"
+
+class PyRanuni(object):
+
+    def __init__(self, _seed=9L, log_level=logging.INFO):
+        self._seed = _seed          #long type - pseudo-random generator seed default to 9L (yield long type)
+        self.__setup_logging(level=log_level)
+        
+    def __setup_logging(self, level):
+        logger = logging.getLogger('PyRanuni')
+        logger.setLevel(level)
+        handler = logging.StreamHandler(sys.stdout)
+        handler.setFormatter(logging.Formatter('%(module)s %(levelname)s %(funcName)s| %(message)s'))
+        logger.addHandler(handler)
+        self.logger = logger
+
+    def ranuni(self):
+        foo = 1.0
+        multiplier = 397204094L
+        prime_modulus = 2147483647L
+        return( float((multiplier*self._seed) % prime_modulus) / (prime_modulus-1) )
+
+def main():
+    parser = argparse.ArgumentParser(description='A Python implementation of the popular SAS Ranuni Function')
+    parser.add_argument('-v', '--verbose', dest='verbose', action='store_true', default=False, help='Verbose mode')
+    parser.add_argument('-p', '--_seed', dest='_seed', action='store', default=9L, help='Random Generator Seed - Default 9L')
+    args = parser.parse_args()
+    myseed = args._seed
+    log_level = logging.INFO
+    if args.verbose:
+        log_level = logging.DEBUG
+    '''if not query:
+        parser.print_help()
+        exit()'''
+    foo = PyRanuni(345235)
+    l = foo.ranuni()
+    print l
+if __name__ == "__main__":
+    main()
