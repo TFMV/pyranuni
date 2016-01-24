@@ -1,5 +1,6 @@
 #!/usr/bin/python
 '''
+@author: Thomas McGeehan
 Created on Jan 24, 2016
      PyRanuni :
      This class implements the Ranuni function often used in SAS
@@ -15,7 +16,6 @@ Created on Jan 24, 2016
      1) returns a value in (0,1]:          ranuni (25938940)
      2) return a value between (100,500]:  100+(500-100)*ranuni(25938940)
 
-     @author: Thomas McGeehan
      Reference: Fishman, GS, and LR Moore (1982), "A Statistical Evaluation of Multiplicative
                 Congruential Random Number Generators With Modulus (2^^31)-1.
                 J. Amer. Stats. Assoc., 77(377), 129-136
@@ -33,14 +33,15 @@ except ImportError,e:
 import sys
 import logging
 import argparse
+import time
 
 __author__ = "Thomas McGeehan"
 __version__ = "0.1"
 
 class PyRanuni(object):
 
-    def __init__(self, _seed=9L, log_level=logging.INFO):
-        self._seed = _seed          #long type - pseudo-random generator seed default to 9L (yield long type)
+    def __init__(self, _seed=long(time.time()*10000), log_level=logging.INFO):
+        self._seed = _seed          #long type - pseudo-random generator seed default to timestamp
         self.__setup_logging(level=log_level)
         
     def __setup_logging(self, level):
@@ -65,8 +66,11 @@ def main():
     log_level = logging.INFO
     if args.verbose:
         log_level = logging.DEBUG
-    foo = PyRanuni(345235)
-    l = foo.ranuni()
-    print l
+    if not myseed: # TODO Fix this
+        parser.print_help()
+        exit()
+    foo = PyRanuni()
+    print foo.ranuni()
+
 if __name__ == "__main__":
     main()
