@@ -66,9 +66,6 @@ def main():
     log_level = logging.INFO
     if args.verbose:
         log_level = logging.DEBUG
-    '''if not query:
-        parser.print_help()
-        exit()'''
     foo = PyRanuni(345235)
     l = foo.ranuni()
     print l
