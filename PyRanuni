@@ -24,15 +24,15 @@ Created on Jan 24, 2016
 
 try:
     import json
-except ImportError,e:
+except ImportError,e :
     import simplejson as json
 except ImportError,e:
     print e
     exit()
 
-import sys
-import logging
 import argparse
+import logging
+import sys
 import time
 
 __author__ = "Thomas McGeehan"
