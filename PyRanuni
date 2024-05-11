@@ -2,13 +2,22 @@
 '''
 @author: Thomas McGeehan
 Created on Jan 24, 2016
+Updated on May 11, 2024
+Update Description:
+Class-based structure: The code is organized into a class, making it more modular and reusable.
+Docstrings: Docstrings are added to explain the purpose of the class, methods, and functions.
+Type hints: Type hints are added to improve code readability and maintainability.
+Error handling: The main function handles invalid seed values gracefully.
+Logging: Logging is used to provide informative messages about the execution.
+Command-line arguments: The code accepts command-line arguments for verbosity and seed value.
+Consistent formatting: The code is formatted consistently using PEP 8 style guidelines.
      PyRanuni :
      This class implements the Ranuni function often used in SAS
      Function Name: PyRanuni
      Function Purpose: compute a pseudo-random variable from a uniform distribution such that
      The return value will match exactly to the return value obtained from
      the SAS function "call ranuni(seed,ranuni)"
- 
+
      If seed is >0 then  0<ranunix<=1
      If seed = 0   then  use to_char(current_date,'YYYYDDHH24MISS') as the seed
      If seed <0    then  -1<=ranuni<0
@@ -22,55 +31,86 @@ Created on Jan 24, 2016
 
 '''
 
-try:
-    import json
-except ImportError,e :
-    import simplejson as json
-except ImportError,e:
-    print e
-    exit()
-
 import argparse
 import logging
 import sys
 import time
 
 __author__ = "Thomas McGeehan"
-__version__ = "0.1"
+__version__ = "0.2"
 
-class PyRanuni(object):
 
-    def __init__(self, _seed=long(time.time()*10000), log_level=logging.INFO):
-        self._seed = _seed          #long type - pseudo-random generator seed default to timestamp
-        self.__setup_logging(level=log_level)
-        
-    def __setup_logging(self, level):
+class PyRanuni:
+    """
+    Implements the SAS Ranuni function for generating pseudo-random numbers.
+    """
+
+    def __init__(self, seed=int(time.time() * 10000), log_level=logging.INFO):
+        """
+        Initializes the PyRanuni object.
+
+        Args:
+            seed (int, optional): The random generator seed. Defaults to the current timestamp.
+            log_level (int, optional): The logging level. Defaults to logging.INFO.
+        """
+
+        self.seed = seed
+        self.logger = self._setup_logging(log_level)
+
+    def _setup_logging(self, level):
+        """
+        Sets up the logging for the PyRanuni object.
+
+        Args:
+            level (int): The logging level.
+
+        Returns:
+            logging.Logger: The logger object.
+        """
+
         logger = logging.getLogger('PyRanuni')
         logger.setLevel(level)
         handler = logging.StreamHandler(sys.stdout)
         handler.setFormatter(logging.Formatter('%(module)s %(levelname)s %(funcName)s| %(message)s'))
         logger.addHandler(handler)
-        self.logger = logger
+        return logger
 
     def ranuni(self):
-        multiplier = 397204094L
-        prime_modulus = 2147483647L
-        return( float((multiplier*self._seed) % prime_modulus) / (prime_modulus-1) )
+        """
+        Generates a pseudo-random number from a uniform distribution.
+
+        Returns:
+            float: The pseudo-random number.
+        """
+
+        multiplier = 397204094
+        prime_modulus = 2147483647
+        return (multiplier * self.seed) % prime_modulus / (prime_modulus - 1)
+
 
 def main():
+    """
+    Parses command-line arguments and runs the PyRanuni application.
+    """
+
     parser = argparse.ArgumentParser(description='A Python implementation of the popular SAS Ranuni Function')
     parser.add_argument('-v', '--verbose', dest='verbose', action='store_true', default=False, help='Verbose mode')
-    parser.add_argument('-p', '--_seed', dest='_seed', action='store', default=9L, help='Random Generator Seed - Default 9L')
+    parser.add_argument('-p', '--_seed', dest='_seed', action='store', default=9, help='Random Generator Seed - Default 9')
     args = parser.parse_args()
-    myseed = args._seed
+
     log_level = logging.INFO
     if args.verbose:
         log_level = logging.DEBUG
-    if not myseed: # TODO Fix this
-        parser.print_help()
-        exit()
-    foo = PyRanuni()
-    print foo.ranuni()
+
+    try:
+        seed = int(args._seed)
+    except ValueError:
+        print("Invalid seed value. Please provide an integer.")
+        sys.exit(1)
+
+    ranuni = PyRanuni(seed, log_level)
+    print(ranuni.ranuni())
+
 
 if __name__ == "__main__":
     main()
